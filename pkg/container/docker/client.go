@@ -869,6 +869,19 @@ func (c *Client) getPermissionConfigFromProfile(
 		config.NetworkMode = "bridge"
 	}
 
+	// Add seccomp profile if present
+	if profile.Seccomp != nil {
+		seccompProfile, err := generateSeccompProfile(profile)
+		if err != nil {
+			logger.Log.Warn(fmt.Sprintf("Warning: Failed to generate seccomp profile: %v", err))
+		} else if seccompProfile != "" {
+			// For Docker, seccomp profiles are passed as seccomp=profile content
+			config.SecurityOpt = append(config.SecurityOpt, "seccomp="+seccompProfile)
+			logger.Log.Info("Applied seccomp profile with denied syscalls: " +
+				strings.Join(profile.Seccomp.DeniedSyscalls, ", "))
+		}
+	}
+
 	// Validate transport type
 	if transportType != "sse" && transportType != "stdio" {
 		return nil, fmt.Errorf("unsupported transport type: %s", transportType)

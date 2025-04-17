@@ -1,6 +1,13 @@
 {
   "version": "1.0.0",
   "last_updated": "2025-03-25 16:58:54",
+  "seccomp_defaults": {
+    "enabled": false,
+    "denied_syscalls": ["ptrace", "reboot", "kexec_load"],
+    "allowed_syscalls": ["read", "write", "exit", "open", "close"],
+    "default_action": "errno",
+    "architectures": ["x86_64", "arm64"]
+  },
   "servers": {
     "fetch": {
       "image": "mcp/fetch:latest",
@@ -22,6 +29,11 @@
               443
             ]
           }
+        },
+        "seccomp": {
+          "enabled": false,
+          "denied_syscalls": ["ptrace", "reboot", "kexec_load"],
+          "allowed_syscalls": ["read", "write", "exit", "open", "close"]
         }
       },
       "tools": [

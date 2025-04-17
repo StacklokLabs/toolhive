@@ -34,6 +34,32 @@ type Profile struct {
 
 	// Network defines network permissions
 	Network *NetworkPermissions `json:"network,omitempty"`
+
+	// Seccomp defines seccomp profile configuration for system call filtering
+	Seccomp *SeccompProfile `json:"seccomp,omitempty"`
+}
+
+// SeccompProfile defines seccomp syscall filtering configuration
+type SeccompProfile struct {
+	// Enabled controls whether this seccomp profile is applied at all. Defaults to true.
+	Enabled bool `json:"enabled"`
+
+	// DeniedSyscalls is a list of syscalls to deny (will return EPERM)
+	DeniedSyscalls []string `json:"denied_syscalls,omitempty"`
+
+	// AllowedSyscalls is a list of syscalls to explicitly allow
+	AllowedSyscalls []string `json:"allowed_syscalls,omitempty"`
+
+	// DefaultAction defines the action for syscalls not in DeniedSyscalls or AllowedSyscalls
+	// Valid values: "allow", "errno" (default), "kill", "trap", "trace"
+	DefaultAction string `json:"default_action,omitempty"`
+
+	// Architectures is a list of architectures to apply the seccomp profile to
+	// If not specified, the profile will apply to all architectures
+	// This should support all Docker architectures
+	// Valid values: "x86_64", "386", "arm", "arm64", "mips", "mips64", "ppc64le", "s390x"
+	// Note from Luke: I only checked x86_64 and arm64 so far
+	Architectures []string `json:"architectures,omitempty"`
 }
 
 // NetworkPermissions defines network permissions for a container
@@ -70,6 +96,13 @@ func NewProfile() *Profile {
 				AllowPort:        []int{},
 			},
 		},
+		Seccomp: &SeccompProfile{
+			Enabled:         true,
+			DeniedSyscalls:  []string{"ptrace", "reboot", "kexec_load"},
+			AllowedSyscalls: []string{"read", "write", "exit", "open", "close"},
+			DefaultAction:   "errno",
+			Architectures:   []string{"x86_64"},
+		},
 	}
 }
 
@@ -104,6 +137,13 @@ func BuiltinNoneProfile() *Profile {
 				AllowPort:        []int{},
 			},
 		},
+		Seccomp: &SeccompProfile{
+			Enabled:         true,
+			DeniedSyscalls:  []string{"ptrace", "reboot", "kexec_load"},
+			AllowedSyscalls: []string{"read", "write", "exit", "open", "close"},
+			DefaultAction:   "errno",
+			Architectures:   []string{"x86_64"},
+		},
 	}
 }
 
@@ -119,6 +159,13 @@ func BuiltinNetworkProfile() *Profile {
 				AllowHost:        []string{},
 				AllowPort:        []int{},
 			},
+		},
+		Seccomp: &SeccompProfile{
+			Enabled:         true,
+			DeniedSyscalls:  []string{"ptrace", "reboot", "kexec_load"},
+			AllowedSyscalls: []string{"read", "write", "exit", "open", "close"},
+			DefaultAction:   "errno",
+			Architectures:   []string{"x86_64"},
 		},
 	}
 }
