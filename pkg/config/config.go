@@ -168,7 +168,7 @@ func (c *Config) save() error {
 	return nil
 }
 
-// UpdateConfig locks the config file, reads from disk, applies the changes
+// UpdateConfig locks a separate lock file, reads from disk, applies the changes
 // from the anonymous function, writes to disk and unlocks the file.
 func UpdateConfig(updateFn func(*Config)) error {
 	configPath, err := getConfigPath()
@@ -176,9 +176,9 @@ func UpdateConfig(updateFn func(*Config)) error {
 		return fmt.Errorf("unable to fetch config path: %w", err)
 	}
 
-	// Code mostly copy-pasta from client package. This could possibly be
-	// refactored into shared logic.
-	fileLock := flock.New(configPath)
+	// Use a separate lock file for cross-platform compatibility
+	lockPath := configPath + ".lock"
+	fileLock := flock.New(lockPath)
 	ctx, cancel := context.WithTimeout(context.Background(), lockTimeout)
 	defer cancel()
 
@@ -192,6 +192,7 @@ func UpdateConfig(updateFn func(*Config)) error {
 	}
 	defer fileLock.Unlock()
 
+	// Load the config after acquiring the lock to avoid race conditions
 	c, err := LoadOrCreateConfig()
 	if err != nil {
 		return fmt.Errorf("failed to load config from disk: %w", err)

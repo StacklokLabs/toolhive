@@ -1,5 +1,6 @@
-// Package process provides utilities for managing process-related operations,
-// such as PID file handling and process management.
+//go:build !windows
+// +build !windows
+
 package process
 
 import (
@@ -9,7 +10,7 @@ import (
 )
 
 // FindProcess finds a process by its ID and checks if it's running.
-// This function works on both Linux and macOS.
+// This function works on Unix systems (Linux and macOS).
 func FindProcess(pid int) (bool, error) {
 	// On Unix systems, os.FindProcess always succeeds regardless of whether
 	// the process exists or not. We need to send a signal to check if it's running.
