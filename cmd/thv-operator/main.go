@@ -24,6 +24,7 @@ import (
 	"github.com/stacklok/toolhive/cmd/thv-operator/controllers"
 	"github.com/stacklok/toolhive/pkg/logger"
 	"github.com/stacklok/toolhive/pkg/operator/telemetry"
+	"github.com/stacklok/toolhive/pkg/versions"
 )
 
 var (
@@ -92,13 +93,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Set up telemetry service - only runs when elected as leader
-	telemetryService := telemetry.NewService(mgr.GetClient(), "")
-	if err := mgr.Add(&telemetry.LeaderTelemetryRunnable{
-		TelemetryService: telemetryService,
-	}); err != nil {
-		setupLog.Error(err, "unable to add telemetry runnable")
-		os.Exit(1)
+	// Set up telemetry service - only runs when elected as leader and BuildType is "release"
+	if versions.BuildType == "release" {
+		telemetryService := telemetry.NewService(mgr.GetClient(), "")
+		if err := mgr.Add(&telemetry.LeaderTelemetryRunnable{
+			TelemetryService: telemetryService,
+		}); err != nil {
+			setupLog.Error(err, "unable to add telemetry runnable")
+			os.Exit(1)
+		}
 	}
 
 	setupLog.Info("starting manager")

@@ -7,14 +7,16 @@ import (
 	"github.com/stacklok/toolhive/cmd/thv/app"
 	"github.com/stacklok/toolhive/pkg/container"
 	"github.com/stacklok/toolhive/pkg/logger"
+	"github.com/stacklok/toolhive/pkg/versions"
 )
 
 func main() {
 	// Initialize the logger
 	logger.Initialize()
 
-	// Skip update check for completion command or if we are running in kubernetes
-	if err := app.NewRootCmd(!app.IsCompletionCommand(os.Args) && !container.IsKubernetesRuntime()).Execute(); err != nil {
+	// Skip update check for completion command, if we are running in kubernetes, or if BuildType is not "release"
+	enableUpdates := !app.IsCompletionCommand(os.Args) && !container.IsKubernetesRuntime() && versions.BuildType == "release"
+	if err := app.NewRootCmd(enableUpdates).Execute(); err != nil {
 		os.Exit(1)
 	}
 }
