@@ -211,6 +211,118 @@
       ],
       "transport": "stdio"
     },
+    "azure": {
+      "args": [],
+      "description": "The Azure MCP Server, bringing the power of Azure to your agents.",
+      "env_vars": [
+        {
+          "description": "Your Azure tenant ID",
+          "name": "AZURE_TENANT_ID",
+          "required": true,
+          "secret": true
+        },
+        {
+          "description": "Your Azure client ID for authentication",
+          "name": "AZURE_CLIENT_ID",
+          "required": true,
+          "secret": true
+        },
+        {
+          "description": "Your Azure client secret for authentication",
+          "name": "AZURE_CLIENT_SECRET",
+          "required": true,
+          "secret": true
+        },
+        {
+          "description": "HTTP proxy URL for outbound requests (optional)",
+          "name": "HTTP_PROXY",
+          "required": false
+        },
+        {
+          "description": "HTTPS proxy URL for outbound requests (optional)",
+          "name": "HTTPS_PROXY",
+          "required": false
+        },
+        {
+          "description": "Comma-separated list of hosts to exclude from proxying (optional)",
+          "name": "NO_PROXY",
+          "required": false
+        }
+      ],
+      "image": "mcp/azure:latest",
+      "metadata": {
+        "last_updated": "2025-06-18T12:00:28-04:00",
+        "pulls": 193,
+        "stars": 781
+      },
+      "permissions": {
+        "network": {
+          "outbound": {
+            "allow_host": [
+              "login.microsoftonline.com",
+              "login.windows.net",
+              "management.azure.com",
+              "graph.microsoft.com",
+              "*.blob.core.windows.net",
+              "*.table.core.windows.net",
+              "*.vault.azure.net",
+              "*.documents.azure.com",
+              "*.servicebus.windows.net"
+            ],
+            "allow_port": [
+              443
+            ],
+            "allow_transport": [
+              "tcp"
+            ],
+            "insecure_allow_all": true
+          }
+        },
+        "read": [],
+        "write": []
+      },
+      "repository_url": "https://github.com/Azure/azure-mcp",
+      "tags": [
+        "azure",
+        "microsoft",
+        "cloud",
+        "iaas",
+        "paas",
+        "infrastructure",
+        "database",
+        "storage"
+      ],
+      "tools": [
+        "azmcp-appconfig-account-list",
+        "azmcp-appconfig-kv-delete",
+        "azmcp-appconfig-kv-list",
+        "azmcp-appconfig-kv-lock",
+        "azmcp-appconfig-kv-set",
+        "azmcp-appconfig-kv-show",
+        "azmcp-appconfig-kv-unlock",
+        "azmcp-cosmos-account-list",
+        "azmcp-cosmos-database-container-item-query",
+        "azmcp-cosmos-database-container-list",
+        "azmcp-cosmos-database-list",
+        "azmcp-extension-az",
+        "azmcp-extension-azd",
+        "azmcp-group-list",
+        "azmcp-monitor-log-query",
+        "azmcp-monitor-table-list",
+        "azmcp-monitor-workspace-list",
+        "azmcp-search-index-describe",
+        "azmcp-search-index-list",
+        "azmcp-search-index-query",
+        "azmcp-search-service-list",
+        "azmcp-storage-account-list",
+        "azmcp-storage-blob-container-details",
+        "azmcp-storage-blob-container-list",
+        "azmcp-storage-blob-list",
+        "azmcp-storage-table-list",
+        "azmcp-subscription-list"
+      ],
+      "transport": "stdio"
+    },
     "brave-search": {
       "args": [],
       "description": "MCP server that integrates the Brave Search API, providing both web and local search capabilities.",
