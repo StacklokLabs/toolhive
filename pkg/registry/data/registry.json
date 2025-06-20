@@ -263,11 +263,11 @@
               "login.windows.net",
               "management.azure.com",
               "graph.microsoft.com",
-              "*.blob.core.windows.net",
-              "*.table.core.windows.net",
-              "*.vault.azure.net",
-              "*.documents.azure.com",
-              "*.servicebus.windows.net"
+              ".blob.core.windows.net",
+              ".table.core.windows.net",
+              ".vault.azure.net",
+              ".documents.azure.com",
+              ".servicebus.windows.net"
             ],
             "allow_port": [
               443
@@ -275,7 +275,7 @@
             "allow_transport": [
               "tcp"
             ],
-            "insecure_allow_all": true
+            "insecure_allow_all": false
           }
         },
         "read": [],
