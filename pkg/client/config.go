@@ -37,6 +37,8 @@ const (
 	VSCode MCPClient = "vscode"
 	// ClaudeCode represents the Claude Code CLI.
 	ClaudeCode MCPClient = "claude-code"
+	// JetBrainsCopilot represents the Copilot plugin for JetBrains IDEs.
+	JetBrainsCopilot MCPClient = "jetbrains-copilot"
 )
 
 // Extension is extension of the client config file.
@@ -178,6 +180,26 @@ var supportedClientIntegrations = []mcpClientConfig{
 			types.TransportTypeStreamableHTTP: "http",
 		},
 		IsTransportTypeFieldSupported: true,
+	},
+	{
+		ClientType:   JetBrainsCopilot,
+		Description:  "JetBrains Copilot plugin",
+		SettingsFile: "mcp.json",
+		RelPath: []string{
+			"github-copilot", "intellij",
+		},
+		MCPServersPathPrefix: "/servers",
+		PlatformPrefix: map[string][]string{
+			"linux":   {".config"},
+			"darwin":  {".config"},
+			"windows": {"AppData", "Local"},
+		},
+		SupportedTransportTypesMap: map[types.TransportType]string{
+			types.TransportTypeStdio:          "sse",
+			types.TransportTypeSSE:            "sse",
+			types.TransportTypeStreamableHTTP: "http",
+		},
+		Extension: JSON,
 	},
 }
 
