@@ -44,6 +44,14 @@ func createMockClientConfigs() []mcpClientConfig {
 			Extension:            JSON,
 		},
 		{
+			ClientType:           Cline,
+			Description:          "VS Code Cline extension (Mock)",
+			RelPath:              []string{"mock_cline"},
+			SettingsFile:         "mcp_settings.json",
+			MCPServersPathPrefix: "/mcpServers",
+			Extension:            JSON,
+		},
+		{
 			ClientType:           ClaudeCode,
 			Description:          "Claude Code CLI (Mock)",
 			RelPath:              []string{"mock_claude"},
