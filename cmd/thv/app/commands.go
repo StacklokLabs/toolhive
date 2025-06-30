@@ -51,6 +51,7 @@ func NewRootCmd(enableUpdates bool) *cobra.Command {
 	rootCmd.AddCommand(logsCommand())
 	rootCmd.AddCommand(newSecretCommand())
 	rootCmd.AddCommand(inspectorCommand())
+	rootCmd.AddCommand(newMCPCommand())
 
 	// Silence printing the usage on error
 	rootCmd.SilenceUsage = true

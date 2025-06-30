@@ -169,7 +169,7 @@ func createTempSquidConf(
 	sb.WriteString(
 		"http_port 3128\n" +
 			"visible_hostname " + serverHostname + "-egress\n" +
-			"access_log stdio:/var/log/squid/access.log squid\n" +
+			"access_log stdio:/dev/stdout squid\n" +
 			"pid_filename /tmp/squid.pid\n" +
 			"# Disable memory and disk caching\n" +
 			"cache deny all\n" +
@@ -268,7 +268,7 @@ func createTempIngressSquidConf(
 
 	sb.WriteString(
 		"visible_hostname " + serverHostname + "-ingress\n" +
-			"access_log stdio:/var/log/squid/access.log squid\n" +
+			"access_log stdio:/dev/stdout squid\n" +
 			"pid_filename /tmp/squid.pid\n" +
 			"# Disable memory and disk caching\n" +
 			"cache deny all\n" +

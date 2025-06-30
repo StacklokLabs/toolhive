@@ -29,6 +29,7 @@ thv [flags]
 * [thv inspector](thv_inspector.md)	 - Launches the MCP Inspector UI and connects it to the specified MCP server
 * [thv list](thv_list.md)	 - List running MCP servers
 * [thv logs](thv_logs.md)	 - Output the logs of an MCP server or manage log files
+* [thv mcp](thv_mcp.md)	 - Interact with MCP servers for debugging
 * [thv proxy](thv_proxy.md)	 - Create a transparent proxy for an MCP server with authentication support
 * [thv registry](thv_registry.md)	 - Manage MCP server registry
 * [thv restart](thv_restart.md)	 - Restart a tooling server
