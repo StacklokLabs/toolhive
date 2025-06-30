@@ -194,12 +194,13 @@ var supportedClientIntegrations = []mcpClientConfig{
 			"darwin":  {".config"},
 			"windows": {"AppData", "Local"},
 		},
+		Extension: JSON,
 		SupportedTransportTypesMap: map[types.TransportType]string{
 			types.TransportTypeStdio:          "sse",
 			types.TransportTypeSSE:            "sse",
 			types.TransportTypeStreamableHTTP: "http",
 		},
-		Extension: JSON,
+		IsTransportTypeFieldSupported: true,
 	},
 }
 
