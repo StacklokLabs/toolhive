@@ -8268,6 +8268,24 @@ spec:
                 maximum: 65535
                 minimum: 1
                 type: integer
+              proxyEnv:
+                description: |-
+                  ProxyEnv are environment variables to set in the proxy container (thv run process)
+                  These affect the toolhive proxy itself, not the MCP server it manages
+                items:
+                  description: EnvVar represents an environment variable in a container
+                  properties:
+                    name:
+                      description: Name of the environment variable
+                      type: string
+                    value:
+                      description: Value of the environment variable
+                      type: string
+                  required:
+                  - name
+                  - value
+                  type: object
+                type: array
               resourceOverrides:
                 description: ResourceOverrides allows overriding annotations and labels
                   for resources created by the operator

@@ -452,6 +452,14 @@ func (r *MCPServerReconciler) deploymentForMCPServer(m *mcpv1alpha1.MCPServer) *
 	// Prepare container env vars for the proxy container
 	env := []corev1.EnvVar{}
 
+	// Add user-specified proxy environment variables
+	for _, envVar := range m.Spec.ProxyEnv {
+		env = append(env, corev1.EnvVar{
+			Name:  envVar.Name,
+			Value: envVar.Value,
+		})
+	}
+
 	// Prepare container volume mounts
 	volumeMounts := []corev1.VolumeMount{}
 	volumes := []corev1.Volume{}

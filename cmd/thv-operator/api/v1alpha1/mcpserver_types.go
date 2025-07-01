@@ -36,6 +36,11 @@ type MCPServerSpec struct {
 	// +optional
 	Env []EnvVar `json:"env,omitempty"`
 
+	// ProxyEnv are environment variables to set in the proxy container (thv run process)
+	// These affect the toolhive proxy itself, not the MCP server it manages
+	// +optional
+	ProxyEnv []EnvVar `json:"proxyEnv,omitempty"`
+
 	// Volumes are volumes to mount in the MCP server container
 	// +optional
 	Volumes []Volume `json:"volumes,omitempty"`

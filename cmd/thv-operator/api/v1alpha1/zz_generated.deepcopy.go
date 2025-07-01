@@ -218,6 +218,11 @@ func (in *MCPServerSpec) DeepCopyInto(out *MCPServerSpec) {
 		*out = make([]EnvVar, len(*in))
 		copy(*out, *in)
 	}
+	if in.ProxyEnv != nil {
+		in, out := &in.ProxyEnv, &out.ProxyEnv
+		*out = make([]EnvVar, len(*in))
+		copy(*out, *in)
+	}
 	if in.Volumes != nil {
 		in, out := &in.Volumes, &out.Volumes
 		*out = make([]Volume, len(*in))

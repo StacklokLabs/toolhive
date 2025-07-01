@@ -220,6 +220,7 @@ _Appears in:_
 | `targetPort` _integer_ | TargetPort is the port that MCP server listens to |  | Maximum: 65535 <br />Minimum: 1 <br /> |
 | `args` _string array_ | Args are additional arguments to pass to the MCP server |  |  |
 | `env` _[EnvVar](#envvar) array_ | Env are environment variables to set in the MCP server container |  |  |
+| `proxyEnv` _[EnvVar](#envvar) array_ | ProxyEnv are environment variables to set in the proxy container (thv run process)<br />These affect the toolhive proxy itself, not the MCP server it manages |  |  |
 | `volumes` _[Volume](#volume) array_ | Volumes are volumes to mount in the MCP server container |  |  |
 | `resources` _[ResourceRequirements](#resourcerequirements)_ | Resources defines the resource requirements for the MCP server container |  |  |
 | `secrets` _[SecretRef](#secretref) array_ | Secrets are references to secrets to mount in the MCP server container |  |  |
