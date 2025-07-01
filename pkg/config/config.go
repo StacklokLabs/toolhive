@@ -29,6 +29,102 @@ type Config struct {
 	AllowPrivateRegistryIp bool                `yaml:"allow_private_registry_ip"`
 	CACertificatePath      string              `yaml:"ca_certificate_path,omitempty"`
 	OTEL                   OpenTelemetryConfig `yaml:"otel,omitempty"`
+	ServerArgs             ServerArgs          `yaml:"server_args,omitempty"`
+	DefaultServers         []string            `yaml:"default_servers,omitempty"`
+}
+
+// ServerArgs stores arguments for specific MCP servers
+type ServerArgs struct {
+	Servers map[string]map[string]string `yaml:"servers,omitempty"`
+	Global  map[string]string            `yaml:"global,omitempty"`
+}
+
+// GetServerArgs returns the configured arguments for a specific server as a map
+func (c *Config) GetServerArgs(serverName string) map[string]string {
+	if c.ServerArgs.Servers == nil {
+		return nil
+	}
+	return c.ServerArgs.Servers[serverName]
+}
+
+// SetServerArgs updates the arguments for a specific server
+// Only arguments provided in the args map will be updated
+// Existing arguments not present in args will be preserved
+func (c *Config) SetServerArgs(serverName string, args map[string]string) error {
+	// Get existing arguments or create new map if none exist
+	existing := c.ServerArgs.Servers[serverName]
+	if existing == nil {
+		existing = make(map[string]string)
+	}
+
+	// Only update arguments that are provided in args
+	for k, v := range args {
+		existing[k] = v
+	}
+
+	c.ServerArgs.Servers[serverName] = existing
+	return c.save()
+}
+
+// DeleteServerArgs removes all arguments for a specific server from the config
+// Returns an error if the server doesn't exist in the config
+func (c *Config) DeleteServerArgs(serverName string) error {
+	if c.ServerArgs.Servers == nil {
+		return fmt.Errorf("no server arguments found in config")
+	}
+
+	if _, exists := c.ServerArgs.Servers[serverName]; !exists {
+		return fmt.Errorf("no arguments found for server %s", serverName)
+	}
+
+	delete(c.ServerArgs.Servers, serverName)
+	return c.save()
+}
+
+// DeleteAllServerArgs removes all server arguments from the config
+// Returns an error if there are no server arguments in the config
+func (c *Config) DeleteAllServerArgs() error {
+	if len(c.ServerArgs.Servers) == 0 {
+		return fmt.Errorf("no server arguments found in config")
+	}
+
+	c.ServerArgs.Servers = make(map[string]map[string]string)
+	return c.save()
+}
+
+// GetGlobalServerArgs returns the configured arguments for a specific server as a map
+func (c *Config) GetGlobalServerArgs() map[string]string {
+	return c.ServerArgs.Global
+}
+
+// SetGlobalServerArgs updates the arguments for a specific server
+// Only arguments provided in the args map will be updated
+// Existing arguments not present in args will be preserved
+func (c *Config) SetGlobalServerArgs(args map[string]string) error {
+	// Get existing arguments or create new map if none exist
+	existing := c.ServerArgs.Global
+	if existing == nil {
+		existing = make(map[string]string)
+	}
+
+	// Only update arguments that are provided in args
+	for k, v := range args {
+		existing[k] = v
+	}
+
+	c.ServerArgs.Global = existing
+	return c.save()
+}
+
+// DeleteGlobalServerArgs removes all arguments for a specific server from the config
+// Returns an error if the server doesn't exist in the config
+func (c *Config) DeleteGlobalServerArgs() error {
+	if c.ServerArgs.Global == nil {
+		return fmt.Errorf("no server arguments found in config")
+	}
+
+	c.ServerArgs.Global = make(map[string]string)
+	return c.save()
 }
 
 // Secrets contains the settings for secrets management.

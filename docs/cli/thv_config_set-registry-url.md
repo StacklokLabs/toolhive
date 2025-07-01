@@ -17,8 +17,7 @@ thv config set-registry-url <url> [flags]
 ### Options
 
 ```
-  -p, --allow-private-ip   Allow setting the registry URL, even if it references a private IP address
-  -h, --help               help for set-registry-url
+  -h, --help   help for set-registry-url
 ```
 
 ### Options inherited from parent commands
