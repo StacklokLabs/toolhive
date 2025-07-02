@@ -44,11 +44,27 @@ func createMockClientConfigs() []mcpClientConfig {
 			Extension:            JSON,
 		},
 		{
+			ClientType:           Cline,
+			Description:          "VS Code Cline extension (Mock)",
+			RelPath:              []string{"mock_cline"},
+			SettingsFile:         "mcp_settings.json",
+			MCPServersPathPrefix: "/mcpServers",
+			Extension:            JSON,
+		},
+		{
 			ClientType:           ClaudeCode,
 			Description:          "Claude Code CLI (Mock)",
 			RelPath:              []string{"mock_claude"},
 			SettingsFile:         ".claude.json",
 			MCPServersPathPrefix: "/mcpServers",
+			Extension:            JSON,
+		},
+		{
+			ClientType:           JetBrainsCopilot,
+			Description:          "JetBrains Copilot plugin (Mock)",
+			RelPath:              []string{"mock_jetbrains_copilot"},
+			SettingsFile:         "mcp.json",
+			MCPServersPathPrefix: "/servers",
 			Extension:            JSON,
 		},
 	}
@@ -273,6 +289,9 @@ func TestSuccessfulClientConfigOperations(t *testing.T) {
 			case Cline:
 				assert.Contains(t, string(content), `"mcpServers":`,
 					"Cline config should contain mcpServers key")
+			case JetBrainsCopilot:
+				assert.Contains(t, string(content), `"servers":`,
+					"JetBrains Copilot config should contain servers key")
 			}
 		}
 	})
@@ -298,7 +317,7 @@ func TestSuccessfulClientConfigOperations(t *testing.T) {
 			case VSCode, VSCodeInsider:
 				assert.Contains(t, string(content), testURL,
 					"VSCode config should contain the server URL")
-			case Cursor, RooCode, ClaudeCode, Cline:
+			case Cursor, RooCode, ClaudeCode, Cline, JetBrainsCopilot:
 				assert.Contains(t, string(content), testURL,
 					"Config should contain the server URL")
 			}
