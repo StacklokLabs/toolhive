@@ -4,37 +4,20 @@ metadata:
   name: fetch
   namespace: toolhive-system
 spec:
-  image: docker.io/mcp/fetch
-  transport: stdio
+  image: ghcr.io/stackloklabs/gofetch/server
+  transport: sse
   port: 8080
+  targetPort: 8080
   permissionProfile:
     type: builtin
     name: network
   podTemplateSpec:
     spec:
+      # this will not be needed once we have implemented separate
+      # service accounts for each MCP server and its proxyrunner
+      serviceAccountName: fetch-proxy-runner
       containers:
-        - name: mcp
-          securityContext:
-            allowPrivilegeEscalation: false
-            runAsNonRoot: false
-            runAsUser: 0
-            runAsGroup: 0
-            capabilities:
-              drop:
-              - ALL
-          resources:
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-      securityContext:
-        runAsNonRoot: false
-        runAsUser: 0
-        runAsGroup: 0
-        seccompProfile:
-          type: RuntimeDefault
+      - name: mcp
   resources:
     limits:
       cpu: "100m"
