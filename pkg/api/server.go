@@ -98,7 +98,7 @@ func Serve(
 	isUnixSocket bool,
 	debugMode bool,
 	enableDocs bool,
-	oidcConfig *auth.JWTValidatorConfig,
+	oidcConfig *auth.TokenValidatorConfig,
 ) error {
 	r := chi.NewRouter()
 	r.Use(
@@ -109,7 +109,7 @@ func Serve(
 	)
 
 	// Add authentication middleware
-	authMiddleware, err := auth.GetAuthenticationMiddleware(ctx, oidcConfig)
+	authMiddleware, err := auth.GetAuthenticationMiddleware(ctx, oidcConfig, false)
 	if err != nil {
 		return fmt.Errorf("failed to create authentication middleware: %v", err)
 	}

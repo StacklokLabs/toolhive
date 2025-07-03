@@ -116,7 +116,7 @@ tasks:
   operator-undeploy:
     desc: Undeploy operator from the K8s cluster
     cmds:
-      - helm uninstall toolhive-operator --kubeconfig kconfig.yaml
+      - helm uninstall toolhive-operator --kubeconfig kconfig.yaml --namespace toolhive-system
 
   # Kubebuilder tasks
   operator-generate:
@@ -139,6 +139,13 @@ tasks:
     cmds:
       - go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
       - KUBEBUILDER_ASSETS="$(shell setup-envtest use 1.28.0 -p path)" go test ./cmd/thv-operator/... -coverprofile cover.out
+
+  operator-e2e-test:
+    desc: Run E2E tests for the operator
+    cmds:
+      - chainsaw test --test-dir test/e2e/chainsaw/operator/setup
+      - chainsaw test --test-dir test/e2e/chainsaw/operator/test-scenarios
+      - chainsaw test --test-dir test/e2e/chainsaw/operator/cleanup
 
   crdref-install:
     desc: Install elastic/crd-ref-docs

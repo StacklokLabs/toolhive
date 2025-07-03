@@ -39,20 +39,21 @@ type OIDCDiscoveryDocument struct {
 	// Add other fields as needed
 }
 
-// JWTValidator validates JWT tokens.
-type JWTValidator struct {
+// TokenValidator validates JWT or opaque tokens using OIDC configuration.
+type TokenValidator struct {
 	// OIDC configuration
-	issuer     string
-	audience   string
-	jwksURL    string
-	clientID   string
-	jwksClient *jwk.Cache
+	issuer            string
+	audience          string
+	jwksURL           string
+	clientID          string
+	jwksClient        *jwk.Cache
+	allowOpaqueTokens bool // Whether to allow opaque tokens (non-JWT)
 
 	// No need for additional caching as jwk.Cache handles it
 }
 
-// JWTValidatorConfig contains configuration for the JWT validator.
-type JWTValidatorConfig struct {
+// TokenValidatorConfig contains configuration for the token validator.
+type TokenValidatorConfig struct {
 	// Issuer is the OIDC issuer URL (e.g., https://accounts.google.com)
 	Issuer string
 
@@ -64,6 +65,9 @@ type JWTValidatorConfig struct {
 
 	// ClientID is the OIDC client ID
 	ClientID string
+
+	// AllowOpaqueTokens indicates whether to allow opaque tokens (non-JWT)
+	AllowOpaqueTokens bool
 }
 
 // discoverOIDCConfiguration discovers OIDC configuration from the issuer's well-known endpoint
@@ -114,23 +118,24 @@ func discoverOIDCConfiguration(ctx context.Context, issuer string) (*OIDCDiscove
 	return &doc, nil
 }
 
-// NewJWTValidatorConfig creates a new JWTValidatorConfig with the provided parameters
-func NewJWTValidatorConfig(issuer, audience, jwksURL, clientID string) *JWTValidatorConfig {
+// NewTokenValidatorConfig creates a new TokenValidatorConfig with the provided parameters
+func NewTokenValidatorConfig(issuer, audience, jwksURL, clientID string, allowOpaqueTokens bool) *TokenValidatorConfig {
 	// Only create a config if at least one parameter is provided
 	if issuer == "" && audience == "" && jwksURL == "" && clientID == "" {
 		return nil
 	}
 
-	return &JWTValidatorConfig{
-		Issuer:   issuer,
-		Audience: audience,
-		JWKSURL:  jwksURL,
-		ClientID: clientID,
+	return &TokenValidatorConfig{
+		Issuer:            issuer,
+		Audience:          audience,
+		JWKSURL:           jwksURL,
+		ClientID:          clientID,
+		AllowOpaqueTokens: allowOpaqueTokens,
 	}
 }
 
-// NewJWTValidator creates a new JWT validator.
-func NewJWTValidator(ctx context.Context, config JWTValidatorConfig) (*JWTValidator, error) {
+// NewTokenValidator creates a new token validator.
+func NewTokenValidator(ctx context.Context, config TokenValidatorConfig, allowOpaqueTokens bool) (*TokenValidator, error) {
 	jwksURL := config.JWKSURL
 
 	// If JWKS URL is not provided but issuer is, try to discover it
@@ -156,17 +161,18 @@ func NewJWTValidator(ctx context.Context, config JWTValidatorConfig) (*JWTValida
 		return nil, fmt.Errorf("failed to register JWKS URL: %w", err)
 	}
 
-	return &JWTValidator{
-		issuer:     config.Issuer,
-		audience:   config.Audience,
-		jwksURL:    jwksURL,
-		clientID:   config.ClientID,
-		jwksClient: cache,
+	return &TokenValidator{
+		issuer:            config.Issuer,
+		audience:          config.Audience,
+		jwksURL:           jwksURL,
+		clientID:          config.ClientID,
+		jwksClient:        cache,
+		allowOpaqueTokens: allowOpaqueTokens,
 	}, nil
 }
 
 // getKeyFromJWKS gets the key from the JWKS.
-func (v *JWTValidator) getKeyFromJWKS(ctx context.Context, token *jwt.Token) (interface{}, error) {
+func (v *TokenValidator) getKeyFromJWKS(ctx context.Context, token *jwt.Token) (interface{}, error) {
 	// Validate the signing method
 	if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -200,7 +206,7 @@ func (v *JWTValidator) getKeyFromJWKS(ctx context.Context, token *jwt.Token) (in
 }
 
 // validateClaims validates the claims in the token.
-func (v *JWTValidator) validateClaims(claims jwt.MapClaims) error {
+func (v *TokenValidator) validateClaims(claims jwt.MapClaims) error {
 	// Validate the issuer if provided
 	if v.issuer != "" {
 		issuer, err := claims.GetIssuer()
@@ -238,17 +244,25 @@ func (v *JWTValidator) validateClaims(claims jwt.MapClaims) error {
 	return nil
 }
 
-// ValidateToken validates a JWT token.
-func (v *JWTValidator) ValidateToken(ctx context.Context, tokenString string) (jwt.MapClaims, error) {
+// ValidateToken validates a token.
+func (v *TokenValidator) ValidateToken(ctx context.Context, tokenString string) (jwt.MapClaims, error) {
 	// Parse the token
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 		return v.getKeyFromJWKS(ctx, token)
 	})
 
 	if err != nil {
+		if errors.Is(err, jwt.ErrTokenMalformed) {
+			// just an opaque token, let it run
+			if v.allowOpaqueTokens {
+				return nil, nil
+			}
+			return nil, fmt.Errorf("token seems to be opaque, but opaque tokens are not allowed: %w", err)
+		}
 		return nil, fmt.Errorf("failed to parse token: %w", err)
 	}
 
+	// it is a jwt token
 	// Check if the token is valid
 	if !token.Valid {
 		return nil, ErrInvalidToken
@@ -272,7 +286,7 @@ func (v *JWTValidator) ValidateToken(ctx context.Context, tokenString string) (j
 type ClaimsContextKey struct{}
 
 // Middleware creates an HTTP middleware that validates JWT tokens.
-func (v *JWTValidator) Middleware(next http.Handler) http.Handler {
+func (v *TokenValidator) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Get the token from the Authorization header
 		authHeader := r.Header.Get("Authorization")

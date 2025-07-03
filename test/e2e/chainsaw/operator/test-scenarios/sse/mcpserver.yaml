@@ -1,0 +1,23 @@
+apiVersion: toolhive.stacklok.dev/v1alpha1
+kind: MCPServer
+metadata:
+  name: test-fetch
+  namespace: toolhive-system
+spec:
+  image: ghcr.io/stackloklabs/gofetch/server
+  transport: sse
+  port: 8080
+  permissionProfile:
+    type: builtin
+    name: network
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+    requests:
+      cpu: "50m"
+      memory: "64Mi"

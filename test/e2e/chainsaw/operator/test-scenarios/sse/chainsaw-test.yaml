@@ -1,0 +1,35 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: sse-mcp-server
+spec:
+  description: Deploys SSE MCP server and verifies it's running
+  timeouts:
+    apply: 30s
+    assert: 60s
+    cleanup: 30s
+    exec: 300s
+  steps:
+  - name: verify-operator
+    description: Ensure operator is ready before testing
+    try:
+    - assert:
+        file: ../../setup/assert-operator-ready.yaml
+      
+  - name: deploy-mcpserver
+    description: Deploy a basic MCPServer instance and verify it's ready
+    try:
+    - apply:
+        file: mcpserver.yaml
+    - assert:
+        file: mcpserver.yaml
+    - assert:
+        file: assert-mcpserver-running.yaml
+    - assert:
+        file: assert-mcpserver-proxy-runner-running.yaml
+    - assert:
+        file: assert-mcpserver-proxy-runner-svc.yaml
+    - assert:
+        file: assert-mcpserver-pod-running.yaml
+    - assert:
+        file: assert-mcpserver-headless-svc.yaml

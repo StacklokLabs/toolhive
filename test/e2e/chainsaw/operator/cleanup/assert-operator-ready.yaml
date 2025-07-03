@@ -1,0 +1,8 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: toolhive-operator
+  namespace: toolhive-system
+status:
+  (conditions[?type == 'Available'] | [0].status): "True"
+  (readyReplicas): 1

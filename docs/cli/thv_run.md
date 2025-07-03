@@ -52,6 +52,7 @@ thv run [flags] SERVER_OR_IMAGE_OR_PROTOCOL [-- ARGS...]
       --oidc-client-id string                 OIDC client ID
       --oidc-issuer string                    OIDC issuer URL (e.g., https://accounts.google.com)
       --oidc-jwks-url string                  URL to fetch the JWKS from
+      --oidc-skip-opaque-token-validation     Allow skipping validation of opaque tokens
       --otel-enable-prometheus-metrics-path   Enable Prometheus-style /metrics endpoint on the main transport port
       --otel-endpoint string                  OpenTelemetry OTLP endpoint URL (e.g., https://api.honeycomb.io)
       --otel-env-vars stringArray             Environment variable names to include in OpenTelemetry spans (comma-separated: ENV1,ENV2)

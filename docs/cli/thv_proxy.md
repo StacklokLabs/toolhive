@@ -59,6 +59,7 @@ thv proxy [flags] SERVER_NAME
       --oidc-client-id string                   OIDC client ID
       --oidc-issuer string                      OIDC issuer URL (e.g., https://accounts.google.com)
       --oidc-jwks-url string                    URL to fetch the JWKS from
+      --oidc-skip-opaque-token-validation       Allow skipping validation of opaque tokens
       --port int                                Port for the HTTP proxy to listen on (host port)
       --remote-auth                             Enable OAuth authentication to remote MCP server
       --remote-auth-callback-port int           Port for OAuth callback server during remote authentication (default: 8666) (default 8666)

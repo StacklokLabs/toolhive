@@ -1,0 +1,33 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: operator-cleanup
+spec:
+  description: Cleansup ToolHive Operator CRDs and deployment
+  timeouts:
+    apply: 30s
+    assert: 60s
+    cleanup: 30s
+    exec: 300s
+  steps:
+  - name: verify-operator
+    description: Ensure operator is running before cleanup
+    try:
+    - assert:
+        file: assert-operator-ready.yaml
+
+  - name: cleanup-operator
+    description: Uninstall ToolHive Operator
+    try:
+    - command:
+        entrypoint: task
+        args:
+        - operator-undeploy
+
+  - name: cleanup-crds
+    description: Uninstall ToolHive Operator CRDs
+    try:
+    - command:
+        entrypoint: task
+        args:
+        - operator-uninstall-crds

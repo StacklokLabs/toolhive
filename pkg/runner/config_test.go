@@ -846,6 +846,7 @@ func TestNewRunConfigFromFlags(t *testing.T) {
 		oidcAudience,
 		oidcJwksURL,
 		oidcClientID,
+		false,
 		"",    // otelEndpoint
 		"",    // otelServiceName
 		0.1,   // otelSamplingRate

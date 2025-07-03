@@ -1,0 +1,7 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: test-fetch
+  namespace: toolhive-system
+status:
+  availableReplicas: 1

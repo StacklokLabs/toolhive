@@ -165,7 +165,7 @@ func LoadOrCreateConfigWithPath(configPath string) (*Config, error) {
 		config = createNewConfigWithDefaults()
 
 		// Persist the new default to disk.
-		logger.Infof("initializing configuration file at %s", configPath)
+		logger.Debugf("initializing configuration file at %s", configPath)
 		err = config.save()
 		if err != nil {
 			return nil, fmt.Errorf("failed to write default config: %w", err)

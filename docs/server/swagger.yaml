@@ -470,6 +470,9 @@ components:
     v1.oidcOptions:
       description: OIDC configuration options
       properties:
+        allow_opaque_tokens:
+          description: Allow opaque tokens (non-JWT) for OIDC validation
+          type: boolean
         audience:
           description: Expected audience
           type: string

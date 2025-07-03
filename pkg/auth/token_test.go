@@ -19,7 +19,7 @@ import (
 const testKeyID = "test-key-1"
 
 //nolint:gocyclo // This test function is complex but manageable
-func TestJWTValidator(t *testing.T) {
+func TestTokenValidator(t *testing.T) {
 	t.Parallel()
 	// Generate a new RSA key pair for signing tokens
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -75,14 +75,14 @@ func TestJWTValidator(t *testing.T) {
 	ctx := context.Background()
 
 	// Create a JWT validator
-	validator, err := NewJWTValidator(ctx, JWTValidatorConfig{
+	validator, err := NewTokenValidator(ctx, TokenValidatorConfig{
 		Issuer:   "test-issuer",
 		Audience: "test-audience",
 		JWKSURL:  jwksServer.URL,
 		ClientID: "test-client",
-	})
+	}, false)
 	if err != nil {
-		t.Fatalf("Failed to create JWT validator: %v", err)
+		t.Fatalf("Failed to create token validator: %v", err)
 	}
 
 	// Force a refresh of the JWKS cache
@@ -173,7 +173,7 @@ func TestJWTValidator(t *testing.T) {
 }
 
 //nolint:gocyclo // This test function is complex but manageable
-func TestJWTValidatorMiddleware(t *testing.T) {
+func TestTokenValidatorMiddleware(t *testing.T) {
 	t.Parallel()
 	// Generate a new RSA key pair for signing tokens
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -229,14 +229,14 @@ func TestJWTValidatorMiddleware(t *testing.T) {
 	ctx := context.Background()
 
 	// Create a JWT validator
-	validator, err := NewJWTValidator(ctx, JWTValidatorConfig{
+	validator, err := NewTokenValidator(ctx, TokenValidatorConfig{
 		Issuer:   "test-issuer",
 		Audience: "test-audience",
 		JWKSURL:  jwksServer.URL,
 		ClientID: "test-client",
-	})
+	}, false)
 	if err != nil {
-		t.Fatalf("Failed to create JWT validator: %v", err)
+		t.Fatalf("Failed to create token validator: %v", err)
 	}
 
 	// Force a refresh of the JWKS cache
@@ -452,7 +452,7 @@ func TestDiscoverOIDCConfiguration(t *testing.T) {
 	})
 }
 
-func TestNewJWTValidatorWithOIDCDiscovery(t *testing.T) {
+func TestNewTokenValidatorWithOIDCDiscovery(t *testing.T) {
 	t.Parallel()
 
 	// Generate a new RSA key pair for signing tokens
@@ -520,16 +520,16 @@ func TestNewJWTValidatorWithOIDCDiscovery(t *testing.T) {
 
 	t.Run("successful OIDC discovery", func(t *testing.T) {
 		t.Parallel()
-		config := JWTValidatorConfig{
+		config := TokenValidatorConfig{
 			Issuer:   oidcServer.URL,
 			Audience: "test-audience",
 			// JWKSURL is intentionally omitted to test discovery
 			ClientID: "test-client",
 		}
 
-		validator, err := NewJWTValidator(ctx, config)
+		validator, err := NewTokenValidator(ctx, config, false)
 		if err != nil {
-			t.Fatalf("Failed to create JWT validator: %v", err)
+			t.Fatalf("Failed to create token validator: %v", err)
 		}
 
 		if validator.issuer != oidcServer.URL {
@@ -576,16 +576,16 @@ func TestNewJWTValidatorWithOIDCDiscovery(t *testing.T) {
 	t.Run("explicit JWKS URL takes precedence", func(t *testing.T) {
 		t.Parallel()
 		explicitJWKSURL := jwksServer.URL + "/jwks"
-		config := JWTValidatorConfig{
+		config := TokenValidatorConfig{
 			Issuer:   oidcServer.URL,
 			Audience: "test-audience",
 			JWKSURL:  explicitJWKSURL, // Explicitly provided
 			ClientID: "test-client",
 		}
 
-		validator, err := NewJWTValidator(ctx, config)
+		validator, err := NewTokenValidator(ctx, config, false)
 		if err != nil {
-			t.Fatalf("Failed to create JWT validator: %v", err)
+			t.Fatalf("Failed to create token validator: %v", err)
 		}
 
 		// Should use the explicit JWKS URL, not discover it
@@ -596,13 +596,13 @@ func TestNewJWTValidatorWithOIDCDiscovery(t *testing.T) {
 
 	t.Run("missing issuer and JWKS URL", func(t *testing.T) {
 		t.Parallel()
-		config := JWTValidatorConfig{
+		config := TokenValidatorConfig{
 			Audience: "test-audience",
 			// Both Issuer and JWKSURL are missing
 			ClientID: "test-client",
 		}
 
-		validator, err := NewJWTValidator(ctx, config)
+		validator, err := NewTokenValidator(ctx, config, false)
 		if err != ErrMissingIssuerAndJWKSURL {
 			t.Errorf("Expected error %v but got %v", ErrMissingIssuerAndJWKSURL, err)
 		}
@@ -613,13 +613,13 @@ func TestNewJWTValidatorWithOIDCDiscovery(t *testing.T) {
 
 	t.Run("failed OIDC discovery", func(t *testing.T) {
 		t.Parallel()
-		config := JWTValidatorConfig{
+		config := TokenValidatorConfig{
 			Issuer:   "https://non-existent-domain.example",
 			Audience: "test-audience",
 			ClientID: "test-client",
 		}
 
-		validator, err := NewJWTValidator(ctx, config)
+		validator, err := NewTokenValidator(ctx, config, false)
 		if err == nil {
 			t.Error("Expected error but got nil")
 		}

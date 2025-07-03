@@ -109,7 +109,7 @@ func TestGetAuthenticationMiddleware(t *testing.T) {
 	ctx := context.Background()
 
 	// Test with nil OIDC config (should return local user middleware)
-	middleware, err := GetAuthenticationMiddleware(ctx, nil)
+	middleware, err := GetAuthenticationMiddleware(ctx, nil, false)
 	require.NoError(t, err, "Expected no error when OIDC config is nil")
 	require.NotNil(t, middleware, "Expected middleware to be returned")
 

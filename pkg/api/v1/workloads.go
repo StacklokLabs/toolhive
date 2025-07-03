@@ -273,6 +273,7 @@ func (s *WorkloadRoutes) createWorkload(w http.ResponseWriter, r *http.Request) 
 		req.OIDC.Audience,
 		req.OIDC.JwksURL,
 		req.OIDC.ClientID,
+		req.OIDC.AllowOpaqueTokens,
 		"",    // otelEndpoint - not exposed through API yet
 		"",    // otelServiceName - not exposed through API yet
 		0.0,   // otelSamplingRate - default value
@@ -513,6 +514,8 @@ type oidcOptions struct {
 	JwksURL string `json:"jwks_url"`
 	// OAuth2 client ID
 	ClientID string `json:"client_id"`
+	// Allow opaque tokens (non-JWT) for OIDC validation
+	AllowOpaqueTokens bool `json:"allow_opaque_tokens"`
 }
 
 // createWorkloadResponse represents the response for workload creation

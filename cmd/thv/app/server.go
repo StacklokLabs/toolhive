@@ -39,7 +39,7 @@ var serveCmd = &cobra.Command{
 		}
 
 		// Get OIDC configuration if enabled
-		var oidcConfig *auth.JWTValidatorConfig
+		var oidcConfig *auth.TokenValidatorConfig
 		if IsOIDCEnabled(cmd) {
 			// Get OIDC flag values
 			issuer := GetStringFlagOrEmpty(cmd, "oidc-issuer")
@@ -47,7 +47,7 @@ var serveCmd = &cobra.Command{
 			jwksURL := GetStringFlagOrEmpty(cmd, "oidc-jwks-url")
 			clientID := GetStringFlagOrEmpty(cmd, "oidc-client-id")
 
-			oidcConfig = &auth.JWTValidatorConfig{
+			oidcConfig = &auth.TokenValidatorConfig{
 				Issuer:   issuer,
 				Audience: audience,
 				JWKSURL:  jwksURL,

@@ -1,0 +1,33 @@
+apiVersion: chainsaw.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: operator-setup
+spec:
+  description: Setup ToolHive Operator CRDs and deployment - base for other tests
+  timeouts:
+    apply: 30s
+    assert: 60s
+    cleanup: 30s
+    exec: 300s
+  # Skip cleanup to leave resources for other tests
+  skipDelete: true
+  steps:
+  - name: setup-crds
+    description: Install ToolHive Operator CRDs
+    try:
+    - command:
+        entrypoint: task
+        args:
+        - operator-install-crds
+    - assert:
+        file: assert-crd.yaml
+
+  - name: setup-operator
+    description: Deploy ToolHive Operator
+    try:
+    - command:
+        entrypoint: task
+        args:
+        - operator-deploy-local
+    - assert:
+        file: assert-operator-ready.yaml

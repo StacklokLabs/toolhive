@@ -180,7 +180,7 @@ func proxyCmdFunc(cmd *cobra.Command, args []string) error {
 	var middlewares []types.Middleware
 
 	// Get OIDC configuration if enabled (for protecting the proxy endpoint)
-	var oidcConfig *auth.JWTValidatorConfig
+	var oidcConfig *auth.TokenValidatorConfig
 	if IsOIDCEnabled(cmd) {
 		// Get OIDC flag values
 		issuer := GetStringFlagOrEmpty(cmd, "oidc-issuer")
@@ -188,7 +188,7 @@ func proxyCmdFunc(cmd *cobra.Command, args []string) error {
 		jwksURL := GetStringFlagOrEmpty(cmd, "oidc-jwks-url")
 		clientID := GetStringFlagOrEmpty(cmd, "oidc-client-id")
 
-		oidcConfig = &auth.JWTValidatorConfig{
+		oidcConfig = &auth.TokenValidatorConfig{
 			Issuer:   issuer,
 			Audience: audience,
 			JWKSURL:  jwksURL,
@@ -197,7 +197,7 @@ func proxyCmdFunc(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get authentication middleware for incoming requests
-	authMiddleware, err := auth.GetAuthenticationMiddleware(ctx, oidcConfig)
+	authMiddleware, err := auth.GetAuthenticationMiddleware(ctx, oidcConfig, false)
 	if err != nil {
 		return fmt.Errorf("failed to create authentication middleware: %v", err)
 	}

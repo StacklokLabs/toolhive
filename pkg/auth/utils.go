@@ -26,12 +26,13 @@ func GetClaimsFromContext(ctx context.Context) (jwt.MapClaims, bool) {
 
 // GetAuthenticationMiddleware returns the appropriate authentication middleware based on the configuration.
 // If OIDC config is provided, it returns JWT middleware. Otherwise, it returns local user middleware.
-func GetAuthenticationMiddleware(ctx context.Context, oidcConfig *JWTValidatorConfig) (func(http.Handler) http.Handler, error) {
+func GetAuthenticationMiddleware(ctx context.Context, oidcConfig *TokenValidatorConfig,
+	allowOpaqueTokens bool) (func(http.Handler) http.Handler, error) {
 	if oidcConfig != nil {
 		logger.Info("OIDC validation enabled")
 
 		// Create JWT validator
-		jwtValidator, err := NewJWTValidator(ctx, *oidcConfig)
+		jwtValidator, err := NewTokenValidator(ctx, *oidcConfig, allowOpaqueTokens)
 		if err != nil {
 			return nil, err
 		}

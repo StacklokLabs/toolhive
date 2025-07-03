@@ -16,6 +16,7 @@ func AddOIDCFlags(cmd *cobra.Command) {
 	cmd.Flags().String("oidc-audience", "", "Expected audience for the token")
 	cmd.Flags().String("oidc-jwks-url", "", "URL to fetch the JWKS from")
 	cmd.Flags().String("oidc-client-id", "", "OIDC client ID")
+	cmd.Flags().Bool("oidc-skip-opaque-token-validation", false, "Allow skipping validation of opaque tokens")
 }
 
 // GetStringFlagOrEmpty tries to get the string value of the given flag.
