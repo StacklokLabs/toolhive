@@ -16,6 +16,7 @@ import (
 	"github.com/stacklok/toolhive/pkg/runner"
 	"github.com/stacklok/toolhive/pkg/runner/retriever"
 	"github.com/stacklok/toolhive/pkg/transport"
+	"github.com/stacklok/toolhive/pkg/transport/types"
 	"github.com/stacklok/toolhive/pkg/workloads"
 )
 
@@ -57,6 +58,7 @@ permission profile. Additional configuration can be provided via flags.`,
 
 var (
 	runTransport         string
+	runProxyMode         string
 	runName              string
 	runHost              string
 	runPort              int
@@ -89,6 +91,7 @@ var (
 
 func init() {
 	runCmd.Flags().StringVar(&runTransport, "transport", "", "Transport mode (sse, streamable-http or stdio)")
+	runCmd.Flags().StringVar(&runProxyMode, "proxy-mode", "sse", "Proxy mode for stdio transport (sse or streamable-http)")
 	runCmd.Flags().StringVar(&runName, "name", "", "Name of the MCP server (auto-generated from image if not provided)")
 	runCmd.Flags().StringVar(&runHost, "host", transport.LocalhostIPv4, "Host for the HTTP proxy to listen on (IP or hostname)")
 	runCmd.Flags().IntVar(&runPort, "port", 0, "Port for the HTTP proxy to listen on (host port)")
@@ -299,6 +302,15 @@ func runCmdFunc(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	// Validate proxy mode early
+	if !types.IsValidProxyMode(runProxyMode) {
+		if runProxyMode == "" {
+			runProxyMode = types.ProxyModeSSE.String() // default to SSE for backward compatibility
+		} else {
+			return fmt.Errorf("invalid value for --proxy-mode: %s", runProxyMode)
+		}
+	}
+
 	// Initialize a new RunConfig with values from command-line flags
 	// TODO: As noted elsewhere, we should use the builder pattern here to make it more readable.
 	runConfig, err := runner.NewRunConfigFromFlags(
@@ -336,6 +348,7 @@ func runCmdFunc(cmd *cobra.Command, args []string) error {
 		runIsolateNetwork,
 		runK8sPodPatch,
 		envVarValidator,
+		types.ProxyMode(runProxyMode),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to create RunConfig: %v", err)

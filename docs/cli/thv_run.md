@@ -72,6 +72,7 @@ thv run [flags] SERVER_OR_IMAGE_OR_PROTOCOL [-- ARGS...]
       --otel-service-name string              OpenTelemetry service name (defaults to toolhive-mcp-proxy)
       --permission-profile string             Permission profile to use (none, network, or path to JSON file) (default "network")
       --port int                              Port for the HTTP proxy to listen on (host port)
+      --proxy-mode string                     Proxy mode for stdio transport (sse or streamable-http) (default "sse")
       --secret stringArray                    Specify a secret to be fetched from the secrets manager and set as an environment variable (format: NAME,target=TARGET)
       --target-host string                    Host to forward traffic to (only applicable to SSE or Streamable HTTP transport) (default "127.0.0.1")
       --target-port int                       Port for the container to expose (only applicable to SSE or Streamable HTTP transport)

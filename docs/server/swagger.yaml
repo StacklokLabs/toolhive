@@ -362,6 +362,9 @@ components:
         permission_profile:
           description: Permission profile to apply
           type: string
+        proxy_mode:
+          description: Proxy mode to use
+          type: string
         secrets:
           description: Secret parameters to inject
           items:

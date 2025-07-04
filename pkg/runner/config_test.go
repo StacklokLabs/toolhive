@@ -857,6 +857,7 @@ func TestNewRunConfigFromFlags(t *testing.T) {
 		false, // isolateNetwork
 		k8sPodPatch,
 		envVarValidator,
+		"sse",
 	)
 	require.NoError(t, err, "NewRunConfigFromFlags should not return an error")
 

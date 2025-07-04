@@ -136,4 +136,26 @@ type Config struct {
 	// PrometheusHandler is an optional HTTP handler for Prometheus metrics endpoint.
 	// If provided, it will be exposed at /metrics on the transport's HTTP server.
 	PrometheusHandler http.Handler
+
+	// ProxyMode is the proxy mode for stdio transport ("sse" or "streamable-http")
+	ProxyMode ProxyMode
+}
+
+// ProxyMode represents the proxy mode for stdio transport.
+type ProxyMode string
+
+const (
+	// ProxyModeSSE is the proxy mode for SSE.
+	ProxyModeSSE ProxyMode = "sse"
+	// ProxyModeStreamableHTTP is the proxy mode for streamable HTTP.
+	ProxyModeStreamableHTTP ProxyMode = "streamable-http"
+)
+
+// IsValidProxyMode returns true if the given mode is a valid ProxyMode.
+func IsValidProxyMode(mode string) bool {
+	return mode == ProxyModeSSE.String() || mode == ProxyModeStreamableHTTP.String()
+}
+
+func (p ProxyMode) String() string {
+	return string(p)
 }

@@ -43,7 +43,7 @@ type RunConfig struct {
 	// BaseName is the base name used for the container (without prefixes)
 	BaseName string `json:"base_name" yaml:"base_name"`
 
-	// Transport is the transport mode (sse or stdio)
+	// Transport is the transport mode (stdio, sse, or streamable-http)
 	Transport types.TransportType `json:"transport" yaml:"transport"`
 
 	// Host is the host for the HTTP proxy
@@ -108,6 +108,9 @@ type RunConfig struct {
 
 	// IsolateNetwork indicates whether to isolate the network for the container
 	IsolateNetwork bool `json:"isolate_network,omitempty" yaml:"isolate_network,omitempty"`
+
+	// ProxyMode is the proxy mode for stdio transport ("sse" or "streamable-http")
+	ProxyMode types.ProxyMode `json:"proxy_mode,omitempty" yaml:"proxy_mode,omitempty"`
 }
 
 // WriteJSON serializes the RunConfig to JSON and writes it to the provided writer
@@ -172,6 +175,7 @@ func NewRunConfigFromFlags(
 	isolateNetwork bool,
 	k8sPodPatch string,
 	envVarValidator EnvVarValidator,
+	proxyMode types.ProxyMode,
 ) (*RunConfig, error) {
 	// Ensure default values for host and targetHost
 	if host == "" {
@@ -198,6 +202,7 @@ func NewRunConfigFromFlags(
 		Host:                        host,
 		IsolateNetwork:              isolateNetwork,
 		K8sPodTemplatePatch:         k8sPodPatch,
+		ProxyMode:                   proxyMode,
 	}
 
 	// Configure audit if enabled
@@ -436,7 +441,12 @@ func (c *RunConfig) WithStandardLabels() *RunConfig {
 	if containerName == "" {
 		containerName = c.Name
 	}
-	labels.AddStandardLabels(c.ContainerLabels, containerName, c.BaseName, string(c.Transport), c.Port)
+
+	transportLabel := c.Transport.String()
+	if c.Transport == types.TransportTypeStdio && c.ProxyMode == types.ProxyModeStreamableHTTP {
+		transportLabel = types.TransportTypeStreamableHTTP.String()
+	}
+	labels.AddStandardLabels(c.ContainerLabels, containerName, c.BaseName, transportLabel, c.Port)
 	return c
 }
 

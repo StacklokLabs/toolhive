@@ -125,6 +125,9 @@ func (r *Runner) Run(ctx context.Context) error {
 		transportConfig.Middlewares = append(transportConfig.Middlewares, middleware)
 	}
 
+	// Set proxy mode for stdio transport
+	transportConfig.ProxyMode = r.Config.ProxyMode
+
 	transportHandler, err := transport.NewFactory().Create(transportConfig)
 	if err != nil {
 		return fmt.Errorf("failed to create transport: %v", err)
