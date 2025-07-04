@@ -99,7 +99,7 @@ tasks:
       OPERATOR_IMAGE:
         sh: KO_DOCKER_REPO=kind.local ko build --local -B ./cmd/thv-operator | tail -n 1
       TOOLHIVE_IMAGE:
-        sh: KO_DOCKER_REPO=kind.local ko build --local -B ./cmd/thv | tail -n 1
+        sh: KO_DOCKER_REPO=kind.local ko build --local -B ./cmd/thv-proxyrunner | tail -n 1
     cmds:
       - echo "Loading toolhive operator image {{.OPERATOR_IMAGE}} into kind..."
       - kind load docker-image --name toolhive {{.OPERATOR_IMAGE}}
