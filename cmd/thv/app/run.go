@@ -346,7 +346,11 @@ func runCmdFunc(cmd *cobra.Command, args []string) error {
 	if runForeground {
 		return workloadManager.RunWorkload(ctx, runConfig)
 	}
-	return workloadManager.RunWorkloadDetached(runConfig)
+	err = workloadManager.RunWorkloadDetached(runConfig)
+	if err != nil {
+		return fmt.Errorf("failed to run MCP workload detached: %v", err)
+	}
+	return nil
 }
 
 // parseCommandArguments processes command-line arguments to find everything after the -- separator

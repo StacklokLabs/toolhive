@@ -443,7 +443,7 @@ var _ = Describe("Proxy OAuth Authentication E2E", Serial, func() {
 
 			By("Reconnecting via MCP to trigger token refresh")
 			proxyURL := fmt.Sprintf("http://localhost:%d/sse", proxyPort)
-			err = e2e.WaitForMCPServerReady(config, proxyURL, "sse", 10*time.Second)
+			err = e2e.WaitForMCPServerReady(config, proxyURL, "sse", 30*time.Second)
 			Expect(err).ToNot(HaveOccurred(), "MCP server not ready after token expiry")
 
 			mcpClient, err := e2e.NewMCPClientForSSE(config, proxyURL)
