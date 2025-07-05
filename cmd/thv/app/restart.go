@@ -15,11 +15,12 @@ var (
 )
 
 var restartCmd = &cobra.Command{
-	Use:   "restart [container-name]",
-	Short: "Restart a tooling server",
-	Long:  `Restart a running tooling server managed by ToolHive. If the server is not running, it will be started.`,
-	Args:  cobra.RangeArgs(0, 1),
-	RunE:  restartCmdFunc,
+	Use:               "restart [container-name]",
+	Short:             "Restart a tooling server",
+	Long:              `Restart a running tooling server managed by ToolHive. If the server is not running, it will be started.`,
+	Args:              cobra.RangeArgs(0, 1),
+	RunE:              restartCmdFunc,
+	ValidArgsFunction: completeMCPServerNames,
 }
 
 func init() {

@@ -11,11 +11,12 @@ import (
 )
 
 var stopCmd = &cobra.Command{
-	Use:   "stop [container-name]",
-	Short: "Stop an MCP server",
-	Long:  `Stop a running MCP server managed by ToolHive.`,
-	Args:  validateStopArgs,
-	RunE:  stopCmdFunc,
+	Use:               "stop [container-name]",
+	Short:             "Stop an MCP server",
+	Long:              `Stop a running MCP server managed by ToolHive.`,
+	Args:              validateStopArgs,
+	RunE:              stopCmdFunc,
+	ValidArgsFunction: completeMCPServerNames,
 }
 
 var (

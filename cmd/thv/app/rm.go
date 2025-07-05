@@ -9,11 +9,12 @@ import (
 )
 
 var rmCmd = &cobra.Command{
-	Use:   "rm [container-name]",
-	Short: "Remove an MCP server",
-	Long:  `Remove an MCP server managed by ToolHive.`,
-	Args:  cobra.ExactArgs(1),
-	RunE:  rmCmdFunc,
+	Use:               "rm [container-name]",
+	Short:             "Remove an MCP server",
+	Long:              `Remove an MCP server managed by ToolHive.`,
+	Args:              cobra.ExactArgs(1),
+	RunE:              rmCmdFunc,
+	ValidArgsFunction: completeMCPServerNames,
 }
 
 //nolint:gocyclo // This function is complex but manageable

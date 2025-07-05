@@ -8,6 +8,7 @@ import (
 
 	"github.com/stacklok/toolhive/pkg/config"
 	"github.com/stacklok/toolhive/pkg/secrets"
+	"github.com/stacklok/toolhive/pkg/workloads"
 )
 
 // AddOIDCFlags adds OIDC validation flags to the provided command.
@@ -77,4 +78,69 @@ func SetSecretsProvider(provider secrets.ProviderType) error {
 
 	fmt.Printf("Secrets provider type updated to: %s\n", provider)
 	return nil
+}
+
+// completeMCPServerNames provides completion for MCP server names.
+// This function is used by commands like 'rm' and 'stop' to auto-complete
+// container names with available MCP servers.
+func completeMCPServerNames(cmd *cobra.Command, args []string, _ string) ([]string, cobra.ShellCompDirective) {
+	// Only complete the first argument (container name)
+	if len(args) > 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	ctx := cmd.Context()
+
+	// Create container manager
+	manager, err := workloads.NewManager(ctx)
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+
+	// List all workloads (including stopped ones for rm command, only running for stop)
+	// We'll include all workloads since rm can remove stopped containers too
+	workloadList, err := manager.ListWorkloads(ctx, true)
+	if err != nil {
+		return nil, cobra.ShellCompDirectiveError
+	}
+
+	// Extract workload names for completion
+	var names []string
+	for _, workload := range workloadList {
+		names = append(names, workload.Name)
+	}
+
+	return names, cobra.ShellCompDirectiveNoFileComp
+}
+
+// completeLogsArgs provides completion for the logs command.
+// This function completes both MCP server names and the special "prune" argument.
+func completeLogsArgs(cmd *cobra.Command, args []string, _ string) ([]string, cobra.ShellCompDirective) {
+	// Only complete the first argument
+	if len(args) > 0 {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	ctx := cmd.Context()
+
+	// Create container manager
+	manager, err := workloads.NewManager(ctx)
+	if err != nil {
+		return []string{"prune"}, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	// List all workloads (including stopped ones)
+	workloadList, err := manager.ListWorkloads(ctx, true)
+	if err != nil {
+		return []string{"prune"}, cobra.ShellCompDirectiveNoFileComp
+	}
+
+	// Extract workload names and add "prune" option
+	var completions []string
+	completions = append(completions, "prune")
+	for _, workload := range workloadList {
+		completions = append(completions, workload.Name)
+	}
+
+	return completions, cobra.ShellCompDirectiveNoFileComp
 }

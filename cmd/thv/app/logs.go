@@ -33,6 +33,7 @@ func logsCommand() *cobra.Command {
 			}
 			return logsCmdFunc(cmd, args)
 		},
+		ValidArgsFunction: completeLogsArgs,
 	}
 
 	logsCommand.Flags().BoolVarP(&followFlag, "follow", "f", false, "Follow log output (only for container logs)")
