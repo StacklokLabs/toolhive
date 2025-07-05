@@ -20,7 +20,7 @@ tasks:
     desc: Generate OpenAPI/Swagger documentation
     deps: [swagger-install]
     cmds:
-      - swag init -g pkg/api/server.go --v3.1 -o docs/server
+      - swag init -g pkg/api/server.go --v3.1 -o docs/server --exclude pkg/kubernetes
 
   lint:
     desc: Run linting tools

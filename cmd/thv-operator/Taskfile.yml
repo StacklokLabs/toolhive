@@ -71,7 +71,7 @@ tasks:
       BUILD_DATE:
         sh: date -u +"%Y-%m-%dT%H:%M:%SZ"
     cmds:
-      - go install -ldflags "-s -w -X github.com/stacklok/toolhive/pkg/versions.Version={{.VERSION}} -X github.com/stacklok/toolhive/pkg/versions.Commit={{.COMMIT}} -X github.com/stacklok/toolhive/pkg/versions.BuildDate={{.BUILD_DATE}}" -v ./cmd/thv-operator
+      - go install -ldflags "-s -w -X github.com/stacklok/toolhive/pkg/kubernetes/versions.Version={{.VERSION}} -X github.com/stacklok/toolhive/pkg/kubernetes/versions.Commit={{.COMMIT}} -X github.com/stacklok/toolhive/pkg/kubernetes/versions.BuildDate={{.BUILD_DATE}}" -v ./cmd/thv-operator
 
   build-operator-image:
     desc: Build the operator image with ko
@@ -99,7 +99,7 @@ tasks:
       OPERATOR_IMAGE:
         sh: KO_DOCKER_REPO=kind.local ko build --local -B ./cmd/thv-operator | tail -n 1
       TOOLHIVE_IMAGE:
-        sh: KO_DOCKER_REPO=kind.local ko build --local -B ./cmd/thv | tail -n 1
+        sh: KO_DOCKER_REPO=kind.local ko build --local -B ./cmd/thv-proxyrunner | tail -n 1
     cmds:
       - echo "Loading toolhive operator image {{.OPERATOR_IMAGE}} into kind..."
       - kind load docker-image --name toolhive {{.OPERATOR_IMAGE}}

@@ -16,3 +16,12 @@ builds:
       - -X github.com/stacklok/toolhive/pkg/versions.Commit={{.Env.COMMIT}}
       - -X github.com/stacklok/toolhive/pkg/versions.BuildDate={{.Env.BUILD_DATE}}
       - -X github.com/stacklok/toolhive/pkg/versions.BuildType=release
+
+  - id: thv-proxyrunner
+    dir: ./cmd/thv-proxyrunner
+    ldflags:
+      - -s -w
+      - -X github.com/stacklok/toolhive/pkg/kubernetes/versions.Version={{.Env.VERSION}}
+      - -X github.com/stacklok/toolhive/pkg/kubernetes/versions.Commit={{.Env.COMMIT}}
+      - -X github.com/stacklok/toolhive/pkg/kubernetes/versions.BuildDate={{.Env.BUILD_DATE}}
+      - -X github.com/stacklok/toolhive/pkg/kubernetes/versions.BuildType=release

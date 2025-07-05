@@ -1,0 +1,49 @@
+FROM python:3.12-slim
+
+{{if .CACertContent}}
+# Add custom CA certificate BEFORE any network operations
+# This ensures that package managers can verify TLS certificates in corporate networks
+COPY ca-cert.crt /tmp/custom-ca.crt
+RUN cat /tmp/custom-ca.crt >> /etc/ssl/certs/ca-certificates.crt && \
+    rm /tmp/custom-ca.crt
+{{end}}
+
+# Install uv package manager and CA certificates
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && \
+    pip install --no-cache-dir uv && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Create a non-root user to run the application and set proper permissions
+RUN groupadd -r appgroup && \
+    useradd -r -g appgroup -m appuser && \
+    mkdir -p /app && \
+    chown -R appuser:appgroup /app && \
+    mkdir -p /home/appuser/.cache && \
+    chown -R appuser:appgroup /home/appuser
+
+{{if .CACertContent}}
+# Properly install the custom CA certificate using standard tools
+RUN mkdir -p /usr/local/share/ca-certificates && \
+    cp /tmp/custom-ca.crt /usr/local/share/ca-certificates/custom-ca.crt 2>/dev/null || \
+    echo "CA cert already added to bundle" && \
+    chmod 644 /usr/local/share/ca-certificates/custom-ca.crt 2>/dev/null || true && \
+    update-ca-certificates
+{{end}}
+
+# Set environment variables for better performance in containers
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_SYSTEM_PYTHON=1
+
+# Switch to non-root user
+USER appuser
+
+# Run the MCP server using uvx (alias for uv tool run)
+# The entrypoint will be constructed dynamically based on the package and arguments
+ENTRYPOINT ["uvx", "{{.MCPPackage}}"{{range .MCPArgs}}, "{{.}}"{{end}}]

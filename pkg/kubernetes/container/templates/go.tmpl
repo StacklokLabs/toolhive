@@ -1,0 +1,54 @@
+FROM golang:1.24-alpine
+
+{{if .CACertContent}}
+# Add custom CA certificate BEFORE any network operations
+# This ensures that package managers can verify TLS certificates in corporate networks
+COPY ca-cert.crt /tmp/custom-ca.crt
+RUN cat /tmp/custom-ca.crt >> /etc/ssl/certs/ca-certificates.crt && \
+    rm /tmp/custom-ca.crt
+{{end}}
+
+# Install CA certificates
+RUN apk add --no-cache ca-certificates
+
+# Set working directory
+WORKDIR /app
+
+# Create a non-root user to run the application and set proper permissions
+RUN addgroup -S appgroup && \
+    adduser -S appuser -G appgroup && \
+    mkdir -p /app && \
+    chown -R appuser:appgroup /app && \
+    mkdir -p /home/appuser/.cache && \
+    chown -R appuser:appgroup /home/appuser
+
+{{if .CACertContent}}
+# Properly install the custom CA certificate using standard tools
+RUN mkdir -p /usr/local/share/ca-certificates && \
+    cp /tmp/custom-ca.crt /usr/local/share/ca-certificates/custom-ca.crt 2>/dev/null || \
+    echo "CA cert already added to bundle" && \
+    chmod 644 /usr/local/share/ca-certificates/custom-ca.crt 2>/dev/null || true && \
+    update-ca-certificates
+{{end}}
+
+# Set environment variables for better performance in containers
+ENV CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64 \
+    GO111MODULE=on
+
+{{if .IsLocalPath}}
+# Copy the local source code
+COPY . /app/
+
+# Change ownership of copied files to appuser
+USER root
+RUN chown -R appuser:appgroup /app
+{{end}}
+
+# Switch to non-root user
+USER appuser
+
+# Run the MCP server using go
+# The entrypoint will be constructed dynamically based on the package and arguments
+ENTRYPOINT ["go", "run", "{{.MCPPackage}}"{{range .MCPArgs}}, "{{.}}"{{end}}]

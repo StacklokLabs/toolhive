@@ -1,0 +1,48 @@
+FROM node:22-alpine
+
+{{if .CACertContent}}
+# Add custom CA certificate BEFORE any network operations
+# This ensures that package managers can verify TLS certificates in corporate networks
+COPY ca-cert.crt /tmp/custom-ca.crt
+RUN cat /tmp/custom-ca.crt >> /etc/ssl/certs/ca-certificates.crt && \
+    rm /tmp/custom-ca.crt
+{{end}}
+
+# Install git for package installation support
+RUN apk add --no-cache git ca-certificates
+
+# Set working directory
+WORKDIR /app
+
+# Create a non-root user to run the application and set proper permissions
+RUN addgroup -S appgroup && \
+    adduser -S appuser -G appgroup && \
+    mkdir -p /app && \
+    chown -R appuser:appgroup /app
+
+# Configure npm for faster installations in containerized environments
+ENV NODE_ENV=production \
+    NPM_CONFIG_LOGLEVEL=error \
+    NPM_CONFIG_FUND=false \
+    NPM_CONFIG_AUDIT=false \
+    NPM_CONFIG_UPDATE_NOTIFIER=false \
+    NPM_CONFIG_PROGRESS=false
+
+{{if .CACertContent}}
+# Properly install the custom CA certificate using standard tools
+RUN mkdir -p /usr/local/share/ca-certificates && \
+    cp /tmp/custom-ca.crt /usr/local/share/ca-certificates/custom-ca.crt 2>/dev/null || \
+    echo "CA cert already added to bundle" && \
+    chmod 644 /usr/local/share/ca-certificates/custom-ca.crt 2>/dev/null || true && \
+    update-ca-certificates
+{{end}}
+
+# Run the MCP server using npx
+# The entrypoint will be constructed dynamically based on the package and arguments
+# Using the form: npx -- <pkg>[@<version>] [args...]
+# The -- separates npx options from the package name and arguments
+
+# Switch to non-root user
+USER appuser
+
+ENTRYPOINT ["npx", "--yes", "--", "{{.MCPPackage}}"{{range .MCPArgs}}, "{{.}}"{{end}}]
